@@ -1,23 +1,31 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.TransactionReportDTO;
 import com.example.demo.model.Transaction;
 import com.example.demo.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
 public class TransactionController {
 
-    @Autowired
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
 
-    // Lấy danh sách tất cả giao dịch
+    @Autowired
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    // Lấy tất cả giao dịch
     @GetMapping
     public List<Transaction> getAllTransactions() {
         return transactionService.getAllTransactions();
@@ -29,7 +37,7 @@ public class TransactionController {
         return transactionService.getTransactionById(id);
     }
 
-    // Thêm giao dịch mới
+    // Tạo giao dịch mới
     @PostMapping
     public Transaction createTransaction(@RequestBody Transaction transaction) {
         return transactionService.createTransaction(transaction);
@@ -52,12 +60,33 @@ public class TransactionController {
     public List<Transaction> getTransactionsByAccountId(@PathVariable Long accountId) {
         return transactionService.getTransactionsByAccountId(accountId);
     }
-}
 
-@GetMapping("/search")
-public Page<Transaction> searchTransactions(
-        @RequestParam String accountNumber,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "5") int size) {
-    return transactionService.getTransactionsByAccountNumber(accountNumber, PageRequest.of(page, size));
+    // Tìm kiếm và phân trang giao dịch theo số tài khoản
+    @GetMapping("/search")
+    public Page<Transaction> searchTransactions(
+            @RequestParam String accountNumber,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return transactionService.getTransactionsByAccountNumber(accountNumber, PageRequest.of(page, size));
+    }
+
+    // Phân trang + lọc theo loại + thời gian theo accountId
+    @GetMapping("/filter")
+    public Page<Transaction> filterTransactions(
+            @RequestParam Long accountId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return transactionService.getFilteredTransactions(accountId, type, start, end, pageable);
+    }
+
+    // Báo cáo giao dịch theo tháng
+    @GetMapping("/report/monthly")
+    public List<TransactionReportDTO> getMonthlyReport() {
+        return transactionService.getMonthlyReport();
+    }
 }

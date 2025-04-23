@@ -1,22 +1,22 @@
 package com.example.demo.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "accounts") // Gợi ý đặt tên bảng rõ ràng hơn
+@Table(name = "accounts")
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Tự động tăng ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_number", nullable = false)
+    @Column(name = "account_number")
     private String accountNumber;
 
-    @Column(name = "account_name", nullable = false)
+    @Column(name = "account_name")
     private String accountName;
 
-    // Getters và Setters
+    // Getter và Setter
     public Long getId() {
         return id;
     }

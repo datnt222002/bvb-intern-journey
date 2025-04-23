@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    // Tìm kiếm tài khoản theo số tài khoản hoặc tên tài khoản (dùng LIKE)
+    // Tìm kiếm tài khoản theo số tài khoản hoặc tên tài khoản
     List<Account> findByAccountNumberContainingIgnoreCaseOrAccountNameContainingIgnoreCase(
         String accountNumber,
         String accountName
